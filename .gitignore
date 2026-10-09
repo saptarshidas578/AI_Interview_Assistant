@@ -1,16 +1,37 @@
-# Virtual environments
+# Python build and virtual environment
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
 venv/
 .venv/
-env/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 
-# Python cache and environment variables
-__pycache__/
-*.pyc
-.env
+# Audio recordings and session temp files
+*.wav
+*.mp3
+sessions/*.json
+temp/
 
-# MacOS folder attributes (if applicable)
+# IDE and OS
+.vscode/
+.idea/
 .DS_Store
-
-# Recordings and session data from your app
-recordings/
-sessions/
+*.log

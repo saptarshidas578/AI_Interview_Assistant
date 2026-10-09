@@ -31,7 +31,6 @@ from enum import Enum, auto
 from datetime import datetime
 import pyttsx3
 
-
 # =========================
 # CONFIG
 # =========================
@@ -147,7 +146,7 @@ class InterviewAssistant(ctk.CTk):
 
         self.sidebar = ctk.CTkScrollableFrame(self, width=310, corner_radius=0)
         self.sidebar.grid(row=0, column=0, sticky="nsew")
-        
+
         self.workspace = ctk.CTkFrame(self, fg_color="#101418", corner_radius=0)
         self.workspace.grid(row=0, column=1, sticky="nsew")
         self.workspace.grid_columnconfigure(0, weight=1)
@@ -159,7 +158,9 @@ class InterviewAssistant(ctk.CTk):
 
     def _build_sidebar(self):
         """Assemble control sidebar for role, persona, interview mode, and timer configuration."""
-        title = ctk.CTkLabel(self.sidebar, text="Interview Setup", font=("Arial", 24, "bold"))
+        title = ctk.CTkLabel(
+            self.sidebar, text="Interview Setup", font=("Arial", 24, "bold")
+        )
         title.pack(anchor="w", padx=18, pady=(20, 8))
 
         self.backend_label = ctk.CTkLabel(self.sidebar, text="Backend URL", anchor="w")
@@ -168,34 +169,55 @@ class InterviewAssistant(ctk.CTk):
         self.server_entry.insert(0, self.server_url)
         self.server_entry.pack(fill="x", padx=18)
 
-        self.health_button = ctk.CTkButton(self.sidebar, text="Check Backend", command=self.check_backend)
+        self.health_button = ctk.CTkButton(
+            self.sidebar, text="Check Backend", command=self.check_backend
+        )
         self.health_button.pack(fill="x", padx=18, pady=(10, 12))
 
         self.role_menu = self._labeled_menu("Role", ROLES, "Software Engineer Intern")
         self.persona_menu = self._labeled_menu("Interviewer", PERSONAS, "Friendly HR")
         self.mode_menu = self._labeled_menu("Mode", INTERVIEW_MODES, "Full Interview")
 
-        self.duration_menu = self._labeled_menu("Duration", ["5 minutes", "10 minutes", "15 minutes"], "10 minutes")
+        self.duration_menu = self._labeled_menu(
+            "Duration", ["5 minutes", "10 minutes", "15 minutes"], "10 minutes"
+        )
         self.limit_menu = self._labeled_menu("Questions", ["3", "5", "8", "10"], "8")
 
         self.resume_box = self._labeled_textbox("Resume / Project Context", height=82)
         self.jd_box = self._labeled_textbox("Job Description", height=82)
 
-        self.tts_switch = ctk.CTkSwitch(self.sidebar, text="AI voice", variable=self.tts_enabled)
+        self.tts_switch = ctk.CTkSwitch(
+            self.sidebar, text="AI voice", variable=self.tts_enabled
+        )
         self.tts_switch.pack(anchor="w", padx=18, pady=(12, 4))
 
-        self.coaching_switch = ctk.CTkSwitch(self.sidebar, text="Show coaching hints", variable=self.coaching_enabled)
+        self.coaching_switch = ctk.CTkSwitch(
+            self.sidebar, text="Show coaching hints", variable=self.coaching_enabled
+        )
         self.coaching_switch.pack(anchor="w", padx=18, pady=(4, 14))
 
-        self.start_button = ctk.CTkButton(self.sidebar, text="Start Interview", height=42, command=self.start_interview)
+        self.start_button = ctk.CTkButton(
+            self.sidebar,
+            text="Start Interview",
+            height=42,
+            command=self.start_interview,
+        )
         self.start_button.pack(fill="x", padx=18, pady=(4, 8))
 
-        self.end_button = ctk.CTkButton(self.sidebar, text="End & Generate Report", fg_color="#34495E", command=self.end_interview, state="disabled")
+        self.end_button = ctk.CTkButton(
+            self.sidebar,
+            text="End & Generate Report",
+            fg_color="#34495E",
+            command=self.end_interview,
+            state="disabled",
+        )
         self.end_button.pack(fill="x", padx=18)
 
     def _labeled_menu(self, label, values, default):
         """Helper to create a titled dropdown option menu."""
-        ctk.CTkLabel(self.sidebar, text=label, anchor="w").pack(fill="x", padx=18, pady=(8, 4))
+        ctk.CTkLabel(self.sidebar, text=label, anchor="w").pack(
+            fill="x", padx=18, pady=(8, 4)
+        )
         menu = ctk.CTkComboBox(self.sidebar, values=values)
         menu.set(default)
         menu.pack(fill="x", padx=18)
@@ -203,7 +225,9 @@ class InterviewAssistant(ctk.CTk):
 
     def _labeled_textbox(self, label, height):
         """Helper to create a titled multiline text entry widget."""
-        ctk.CTkLabel(self.sidebar, text=label, anchor="w").pack(fill="x", padx=18, pady=(8, 4))
+        ctk.CTkLabel(self.sidebar, text=label, anchor="w").pack(
+            fill="x", padx=18, pady=(8, 4)
+        )
         box = ctk.CTkTextbox(self.sidebar, height=height, wrap="word")
         box.pack(fill="x", padx=18)
         return box
@@ -214,13 +238,19 @@ class InterviewAssistant(ctk.CTk):
         self.header.grid(row=0, column=0, sticky="ew", padx=18, pady=(16, 8))
         self.header.grid_columnconfigure(0, weight=1)
 
-        self.title_label = ctk.CTkLabel(self.header, text="AI Interview Assistant", font=("Arial", 28, "bold"))
+        self.title_label = ctk.CTkLabel(
+            self.header, text="AI Interview Assistant", font=("Arial", 28, "bold")
+        )
         self.title_label.grid(row=0, column=0, sticky="w")
 
-        self.timer_label = ctk.CTkLabel(self.header, text="00:00", font=("Arial", 26, "bold"), text_color="#F1C40F")
+        self.timer_label = ctk.CTkLabel(
+            self.header, text="00:00", font=("Arial", 26, "bold"), text_color="#F1C40F"
+        )
         self.timer_label.grid(row=0, column=1, sticky="e", padx=(20, 0))
 
-        self.status_label = ctk.CTkLabel(self.header, text="Ready", font=("Arial", 14), text_color="#2ECC71")
+        self.status_label = ctk.CTkLabel(
+            self.header, text="Ready", font=("Arial", 14), text_color="#2ECC71"
+        )
         self.status_label.grid(row=1, column=0, sticky="w", pady=(4, 0))
 
     def _build_main_area(self):
@@ -231,9 +261,10 @@ class InterviewAssistant(ctk.CTk):
         self.main.grid_columnconfigure(1, weight=1)
         self.main.grid_rowconfigure(0, weight=1)
 
-        self.left_panel = ctk.CTkScrollableFrame(self.main, fg_color="#171D23", corner_radius=8, width=520)
+        self.left_panel = ctk.CTkScrollableFrame(
+            self.main, fg_color="#171D23", corner_radius=8, width=520
+        )
         self.left_panel.grid(row=0, column=0, sticky="ns", padx=(0, 12))
-        
 
         self.right_panel = ctk.CTkFrame(self.main, fg_color="#171D23", corner_radius=8)
         self.right_panel.grid(row=0, column=1, sticky="nsew")
@@ -245,8 +276,17 @@ class InterviewAssistant(ctk.CTk):
 
     def _build_left_panel(self):
         """Construct telemetry dashboard with webcam feed, gaze metrics, and audio visualizer."""
-        ctk.CTkLabel(self.left_panel, text="Camera & Delivery", font=("Arial", 18, "bold")).pack(anchor="w", padx=16, pady=(16, 8))
-        self.video_label = ctk.CTkLabel(self.left_panel, text="Camera OFF", width=480, height=360, fg_color="#0B0F13", corner_radius=8)
+        ctk.CTkLabel(
+            self.left_panel, text="Camera & Delivery", font=("Arial", 18, "bold")
+        ).pack(anchor="w", padx=16, pady=(16, 8))
+        self.video_label = ctk.CTkLabel(
+            self.left_panel,
+            text="Camera OFF",
+            width=480,
+            height=360,
+            fg_color="#0B0F13",
+            corner_radius=8,
+        )
         self.video_label.pack(padx=16, pady=(0, 12))
 
         self.metric_grid = ctk.CTkFrame(self.left_panel, fg_color="transparent")
@@ -258,8 +298,12 @@ class InterviewAssistant(ctk.CTk):
         self.confidence_value = self._metric_card("Confidence", "--", 1, 0)
         self.wpm_value = self._metric_card("WPM", "--", 1, 1)
 
-        ctk.CTkLabel(self.left_panel, text="Microphone", anchor="w").pack(fill="x", padx=16, pady=(16, 4))
-        self.mic_progress = ctk.CTkProgressBar(self.left_panel, progress_color="#2ECC71")
+        ctk.CTkLabel(self.left_panel, text="Microphone", anchor="w").pack(
+            fill="x", padx=16, pady=(16, 4)
+        )
+        self.mic_progress = ctk.CTkProgressBar(
+            self.left_panel, progress_color="#2ECC71"
+        )
         self.mic_progress.pack(fill="x", padx=16)
         self.mic_progress.set(0)
 
@@ -272,25 +316,44 @@ class InterviewAssistant(ctk.CTk):
         )
         self.recording_hint.pack(fill="x", padx=16, pady=(8, 0))
 
-
         self.controls = ctk.CTkFrame(self.left_panel, fg_color="transparent")
         self.controls.pack(fill="x", padx=16, pady=16)
         self.controls.grid_columnconfigure((0, 1), weight=1)
 
-        self.record_button = ctk.CTkButton(self.controls, text="Start Answer", height=42, command=self.start_recording, state="disabled", fg_color="#C0392B")
+        self.record_button = ctk.CTkButton(
+            self.controls,
+            text="Start Answer",
+            height=42,
+            command=self.start_recording,
+            state="disabled",
+            fg_color="#C0392B",
+        )
         self.record_button.grid(row=0, column=0, sticky="ew", padx=(0, 6))
 
-        self.stop_button = ctk.CTkButton(self.controls, text="Submit Answer", height=42, command=self.stop_recording, state="disabled")
+        self.stop_button = ctk.CTkButton(
+            self.controls,
+            text="Submit Answer",
+            height=42,
+            command=self.stop_recording,
+            state="disabled",
+        )
         self.stop_button.grid(row=0, column=1, sticky="ew", padx=(6, 0))
 
-        self.replay_button = ctk.CTkButton(self.left_panel, text="Replay Current Question", command=lambda: self.speak(self.current_question), state="disabled")
+        self.replay_button = ctk.CTkButton(
+            self.left_panel,
+            text="Replay Current Question",
+            command=lambda: self.speak(self.current_question),
+            state="disabled",
+        )
         self.replay_button.pack(fill="x", padx=16, pady=(0, 12))
 
     def _metric_card(self, label, value, row, column):
         """Create a compact card displaying numerical telemetry (e.g., eye contact, pacing)."""
         card = ctk.CTkFrame(self.metric_grid, fg_color="#202832", corner_radius=8)
         card.grid(row=row, column=column, sticky="ew", padx=5, pady=5)
-        ctk.CTkLabel(card, text=label, font=("Arial", 12), text_color="#AAB7C4").pack(anchor="w", padx=12, pady=(10, 0))
+        ctk.CTkLabel(card, text=label, font=("Arial", 12), text_color="#AAB7C4").pack(
+            anchor="w", padx=12, pady=(10, 0)
+        )
         value_label = ctk.CTkLabel(card, text=value, font=("Arial", 24, "bold"))
         value_label.pack(anchor="w", padx=12, pady=(0, 10))
         return value_label
@@ -301,8 +364,12 @@ class InterviewAssistant(ctk.CTk):
         top.grid(row=0, column=0, sticky="ew", padx=16, pady=(16, 8))
         top.grid_columnconfigure(0, weight=1)
 
-        ctk.CTkLabel(top, text="Current Question", font=("Arial", 18, "bold")).grid(row=0, column=0, sticky="w")
-        self.score_label = ctk.CTkLabel(top, text="Score: --", font=("Arial", 18, "bold"), text_color="#F1C40F")
+        ctk.CTkLabel(top, text="Current Question", font=("Arial", 18, "bold")).grid(
+            row=0, column=0, sticky="w"
+        )
+        self.score_label = ctk.CTkLabel(
+            top, text="Score: --", font=("Arial", 18, "bold"), text_color="#F1C40F"
+        )
         self.score_label.grid(row=0, column=1, sticky="e")
 
         self.question_box = ctk.CTkTextbox(self.right_panel, height=88, wrap="word")
@@ -391,7 +458,16 @@ class InterviewAssistant(ctk.CTk):
         ]
 
         if self.coaching_enabled.get():
-            lines.extend(["", "Improved Sample Answer:", data.get("improved_sample_answer", ""), "", "Hint:", data.get("ideal_answer_hint", "")])
+            lines.extend(
+                [
+                    "",
+                    "Improved Sample Answer:",
+                    data.get("improved_sample_answer", ""),
+                    "",
+                    "Hint:",
+                    data.get("ideal_answer_hint", ""),
+                ]
+            )
 
         self.feedback_text.delete("1.0", "end")
         self.feedback_text.insert("1.0", "\n".join(lines))
@@ -408,7 +484,14 @@ class InterviewAssistant(ctk.CTk):
     def lock_setup(self, locked):
         """Enable or disable configuration inputs during active interview sessions."""
         state = "disabled" if locked else "normal"
-        for widget in [self.server_entry, self.role_menu, self.persona_menu, self.mode_menu, self.duration_menu, self.limit_menu]:
+        for widget in [
+            self.server_entry,
+            self.role_menu,
+            self.persona_menu,
+            self.mode_menu,
+            self.duration_menu,
+            self.limit_menu,
+        ]:
             widget.configure(state=state)
         self.start_button.configure(state="disabled" if locked else "normal")
 
@@ -427,11 +510,20 @@ class InterviewAssistant(ctk.CTk):
             try:
                 response = requests.get(f"{self.server_url}/health", timeout=8)
                 if response.status_code == 200 and response.json().get("ok"):
-                    self.after(0, lambda: self.set_status("Backend connected.", "#2ECC71"))
+                    self.after(
+                        0, lambda: self.set_status("Backend connected.", "#2ECC71")
+                    )
                 else:
-                    self.after(0, lambda: self.set_status("Backend responded, but health check failed.", "#E74C3C"))
+                    self.after(
+                        0,
+                        lambda: self.set_status(
+                            "Backend responded, but health check failed.", "#E74C3C"
+                        ),
+                    )
             except Exception as exc:
-                self.after(0, lambda: self.set_status(f"Backend offline: {exc}", "#E74C3C"))
+                self.after(
+                    0, lambda: self.set_status(f"Backend offline: {exc}", "#E74C3C")
+                )
 
         threading.Thread(target=worker, daemon=True).start()
 
@@ -439,7 +531,9 @@ class InterviewAssistant(ctk.CTk):
         """Request initial role-specific interview prompt from the LLM backend."""
         payload = self.base_payload()
         try:
-            response = requests.post(f"{self.server_url}/opening_question", json=payload, timeout=20)
+            response = requests.post(
+                f"{self.server_url}/opening_question", json=payload, timeout=20
+            )
             if response.status_code == 200:
                 return response.json().get("opening_question", "")
         except Exception:
@@ -514,8 +608,9 @@ class InterviewAssistant(ctk.CTk):
             self.record_button.configure(state="normal")
             self.stop_button.configure(state="disabled")
             self.set_status("Your turn. Start answering when ready.", "#2ECC71")
-            self.recording_hint.configure(text="Ready: click Start Answer, then speak normally.")
-
+            self.recording_hint.configure(
+                text="Ready: click Start Answer, then speak normally."
+            )
 
     def start_recording(self):
         """Begin microphone audio acquisition using sounddevice input stream."""
@@ -531,11 +626,20 @@ class InterviewAssistant(ctk.CTk):
 
         self.record_button.configure(state="disabled")
         self.stop_button.configure(state="normal")
-        self.set_status("Recording answer. Click Submit Answer when you finish speaking.", "#2ECC71")
-        self.recording_hint.configure(text="Recording now. When you are done, click Submit Answer below.")
+        self.set_status(
+            "Recording answer. Click Submit Answer when you finish speaking.", "#2ECC71"
+        )
+        self.recording_hint.configure(
+            text="Recording now. When you are done, click Submit Answer below."
+        )
 
         try:
-            self.audio_stream = sd.InputStream(samplerate=self.fs, channels=1, dtype="float32", callback=self._audio_callback)
+            self.audio_stream = sd.InputStream(
+                samplerate=self.fs,
+                channels=1,
+                dtype="float32",
+                callback=self._audio_callback,
+            )
             self.audio_stream.start()
         except Exception as exc:
             self.is_recording = False
@@ -560,13 +664,17 @@ class InterviewAssistant(ctk.CTk):
         self.record_button.configure(state="disabled")
         self.stop_button.configure(state="disabled")
         self.set_status("Answer submitted. Processing with backend...", "#F1C40F")
-        self.recording_hint.configure(text="Submitted. Please wait while the AI transcribes, scores, and prepares the next question.")
+        self.recording_hint.configure(
+            text="Submitted. Please wait while the AI transcribes, scores, and prepares the next question."
+        )
         threading.Thread(target=self._submit_turn, daemon=True).start()
 
     def _submit_turn(self):
         """Asynchronously transmit recorded audio and conversation context to the backend."""
         if not self.audio_data:
-            self.after(0, lambda: self.set_status("No audio detected. Try again.", "#E74C3C"))
+            self.after(
+                0, lambda: self.set_status("No audio detected. Try again.", "#E74C3C")
+            )
             self.after(0, lambda: self.record_button.configure(state="normal"))
             self.interview_state = InterviewState.READY_TO_RECORD
             return
@@ -592,7 +700,9 @@ class InterviewAssistant(ctk.CTk):
             if response.status_code == 200:
                 data = response.json()
             else:
-                data = self.local_fallback_turn(f"Server returned {response.status_code}")
+                data = self.local_fallback_turn(
+                    f"Server returned {response.status_code}"
+                )
         except Exception as exc:
             data = self.local_fallback_turn(str(exc))
 
@@ -609,24 +719,29 @@ class InterviewAssistant(ctk.CTk):
         self.confidence_value.configure(text=f"{speech.get('confidence', '--')}%")
         self.wpm_value.configure(text=str(speech.get("wpm_estimate", "--")))
 
-        self.history.append({
-            "question": self.current_question,
-            "answer": transcript,
-            "score": data.get("score"),
-            "feedback": data.get("feedback", ""),
-            "breakdown": data.get("breakdown", {}),
-            "speech_metrics": speech,
-            "strengths": data.get("strengths", []),
-            "weaknesses": data.get("weaknesses", []),
-            "suggestions": data.get("suggestions", []),
-        })
+        self.history.append(
+            {
+                "question": self.current_question,
+                "answer": transcript,
+                "score": data.get("score"),
+                "feedback": data.get("feedback", ""),
+                "breakdown": data.get("breakdown", {}),
+                "speech_metrics": speech,
+                "strengths": data.get("strengths", []),
+                "weaknesses": data.get("weaknesses", []),
+                "suggestions": data.get("suggestions", []),
+            }
+        )
 
         self.turn_count += 1
         if self.turn_count >= self.question_limit or self.remaining_seconds() <= 0:
             self.end_interview()
             return
 
-        next_question = data.get("next_question") or FALLBACK_QUESTIONS[self.turn_count % len(FALLBACK_QUESTIONS)]
+        next_question = (
+            data.get("next_question")
+            or FALLBACK_QUESTIONS[self.turn_count % len(FALLBACK_QUESTIONS)]
+        )
         self._show_ai_question(next_question)
 
     def local_fallback_turn(self, error):
@@ -635,13 +750,27 @@ class InterviewAssistant(ctk.CTk):
             "transcript": "Could not process answer because the backend was unavailable.",
             "score": 5,
             "feedback": f"Backend issue: {error}",
-            "breakdown": {"relevance": 5, "clarity": 5, "specificity": 5, "structure": 5, "technical_depth": 5, "impact": 5},
+            "breakdown": {
+                "relevance": 5,
+                "clarity": 5,
+                "specificity": 5,
+                "structure": 5,
+                "technical_depth": 5,
+                "impact": 5,
+            },
             "strengths": ["The interview flow continued instead of crashing."],
             "weaknesses": ["Backend connection needs to be restored."],
             "suggestions": ["Check Colab runtime, ngrok URL, and internet connection."],
-            "speech_metrics": {"confidence": "--", "filler_count": "--", "wpm_estimate": "--", "word_count": "--"},
+            "speech_metrics": {
+                "confidence": "--",
+                "filler_count": "--",
+                "wpm_estimate": "--",
+                "word_count": "--",
+            },
             "star": {},
-            "next_question": FALLBACK_QUESTIONS[self.turn_count % len(FALLBACK_QUESTIONS)],
+            "next_question": FALLBACK_QUESTIONS[
+                self.turn_count % len(FALLBACK_QUESTIONS)
+            ],
             "difficulty": "medium",
             "question_type": "fallback",
             "ideal_answer_hint": "",
@@ -666,8 +795,12 @@ class InterviewAssistant(ctk.CTk):
         payload = self.base_payload()
         payload["history"] = self.history
         try:
-            response = requests.post(f"{self.server_url}/final_report", json=payload, timeout=60)
-            report = response.json() if response.status_code == 200 else self.local_report()
+            response = requests.post(
+                f"{self.server_url}/final_report", json=payload, timeout=60
+            )
+            report = (
+                response.json() if response.status_code == 200 else self.local_report()
+            )
         except Exception:
             report = self.local_report()
         self.after(0, lambda: self._show_report(report))
@@ -709,7 +842,9 @@ class InterviewAssistant(ctk.CTk):
 
     def local_report(self):
         """Generate structured offline summary report using locally recorded session metrics."""
-        scores = [x.get("score") for x in self.history if isinstance(x.get("score"), int)]
+        scores = [
+            x.get("score") for x in self.history if isinstance(x.get("score"), int)
+        ]
         avg = int(sum(scores) / len(scores)) if scores else 5
         return {
             "overall_score": avg,
@@ -719,14 +854,26 @@ class InterviewAssistant(ctk.CTk):
             "top_weaknesses": ["Needs continued practice"],
             "communication_feedback": "Keep answers concise and structured.",
             "technical_feedback": "Add more role-specific details when relevant.",
-            "recommended_practice_plan": ["Practice STAR answers", "Prepare project stories", "Reduce filler words"],
-            "next_7_day_plan": ["Practice introduction", "Review projects", "Do another mock interview"],
+            "recommended_practice_plan": [
+                "Practice STAR answers",
+                "Prepare project stories",
+                "Reduce filler words",
+            ],
+            "next_7_day_plan": [
+                "Practice introduction",
+                "Review projects",
+                "Do another mock interview",
+            ],
         }
 
     def save_session(self, report):
         """Persist interview transcript, scores, and feedback to a timestamped JSON file on disk."""
         os.makedirs("sessions", exist_ok=True)
-        stamp = self.session_started_at.strftime("%Y%m%d_%H%M%S") if self.session_started_at else datetime.now().strftime("%Y%m%d_%H%M%S")
+        stamp = (
+            self.session_started_at.strftime("%Y%m%d_%H%M%S")
+            if self.session_started_at
+            else datetime.now().strftime("%Y%m%d_%H%M%S")
+        )
         path = os.path.join("sessions", f"interview_session_{stamp}.json")
         data = {
             "started_at": stamp,
@@ -747,7 +894,10 @@ class InterviewAssistant(ctk.CTk):
         """Calculate remaining session duration in seconds based on allocated timer."""
         if not self.interview_start_time:
             return self.max_duration_seconds
-        return max(0, int(self.max_duration_seconds - (time.time() - self.interview_start_time)))
+        return max(
+            0,
+            int(self.max_duration_seconds - (time.time() - self.interview_start_time)),
+        )
 
     def _update_timer(self):
         """Recurring 1-second GUI loop decrementing session timer and enforcing timeouts."""
@@ -834,7 +984,9 @@ class InterviewAssistant(ctk.CTk):
             time.sleep(0.01)
 
         cap.release()
-        self.after(0, lambda: self.video_label.configure(image=None, text="Camera Stopped"))
+        self.after(
+            0, lambda: self.video_label.configure(image=None, text="Camera Stopped")
+        )
 
     def _process_face_metrics(self, rgb):
         """Analyze face mesh landmarks to compute gaze direction, attention score, and eye contact."""
@@ -850,13 +1002,21 @@ class InterviewAssistant(ctk.CTk):
             eye_center_x = (left_eye.x + right_eye.x) / 2
             if (eye_center_x - 0.04) <= nose.x <= (eye_center_x + 0.04):
                 target_attention = 100.0
-        self.smooth_attention = target_attention * self.ema_alpha + self.smooth_attention * (1 - self.ema_alpha)
-        self.smooth_eye_contact = target_eye_contact * self.ema_alpha + self.smooth_eye_contact * (1 - self.ema_alpha)
+        self.smooth_attention = (
+            target_attention * self.ema_alpha
+            + self.smooth_attention * (1 - self.ema_alpha)
+        )
+        self.smooth_eye_contact = (
+            target_eye_contact * self.ema_alpha
+            + self.smooth_eye_contact * (1 - self.ema_alpha)
+        )
 
     def _update_camera_ui(self, rgb):
         """Render processed OpenCV frame to CustomTkinter image canvas."""
         pil_image = Image.fromarray(rgb)
-        ctk_image = ctk.CTkImage(light_image=pil_image, dark_image=pil_image, size=(480, 360))
+        ctk_image = ctk.CTkImage(
+            light_image=pil_image, dark_image=pil_image, size=(480, 360)
+        )
         self.video_label.configure(image=ctk_image, text="")
         self.video_label.image = ctk_image
         self.eye_value.configure(text=f"{int(self.smooth_eye_contact)}%")
