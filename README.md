@@ -1,327 +1,165 @@
-# 🎤 AI Interview Assistant
+# AI Interview Assistant
 
-An AI-powered desktop application that simulates realistic technical and HR interviews using speech recognition, adaptive questioning, and intelligent performance evaluation. The system combines a Python desktop frontend with a Flask backend powered by Whisper and Groq LLMs to provide a complete mock interview experience.
+A multimodal desktop mock interview platform featuring real-time Whisper speech-to-text, MediaPipe computer vision gaze tracking, adaptive Groq LLM evaluation, and CustomTkinter interface.
 
----
-
-## 📌 Overview
-
-Preparing for technical interviews often requires repeated practice, structured feedback, and realistic interview simulations. This project was built to provide an interactive interview platform that evaluates not only what a candidate says but also how they deliver their answers.
-
-The application acts as an AI interviewer by asking role-specific questions, transcribing spoken responses, evaluating answer quality, providing detailed feedback, and generating a comprehensive interview report.
+![Language](https://img.shields.io/badge/Language-Python%203.10%2B-blue)
+![GUI](https://img.shields.io/badge/GUI-CustomTkinter-darkblue)
+![Computer%20Vision](https://img.shields.io/badge/Vision-MediaPipe%20%2F%20OpenCV-orange)
+![Speech](https://img.shields.io/badge/Audio-OpenAI%20Whisper-green)
+![LLM%20Engine](https://img.shields.io/badge/LLM-Groq%20LLaMA%203.1-purple)
 
 ---
 
-## ✨ Features
+## Overview
 
-### 🎯 Realistic AI Interview
-
-* Role-based interview sessions
-* Adaptive follow-up questions
-* Multiple interviewer personalities
-* Dynamic interview flow
-* Configurable interview duration
-* Configurable number of questions
+The AI Interview Assistant is an intelligent desktop application engineered to simulate realistic technical and behavioral hiring interviews. Preparing for competitive engineering interviews requires both strong technical domain knowledge and disciplined delivery under observation. The application serves as an interactive artificial interviewer: it generates context-aware questions tailored to candidate roles and interviewer personas, captures microphone responses for Whisper transcription, monitors real-time eye contact and attention using MediaPipe Face Mesh, and analyzes responses via Groq's high-speed LLaMA inference engine. Candidates receive instant rubric-based scoring, STAR method breakdowns, and a comprehensive 7-day development roadmap upon interview completion.
 
 ---
 
-### 💼 Multiple Interview Roles
+## Features
 
-Supports interviews for:
-
-* Software Engineer Intern
-* Frontend Developer
-* Backend Developer
-* Data Analyst
-* HR Round
-
-Each role uses different interview styles and question categories.
+- **Role & Persona Simulation:** Supports dedicated interview tracks (Software Engineer Intern, Frontend, Backend, Data Analyst, HR) customized with selectable personas (Strict Technical Lead, Friendly HR, Startup Founder, Calm Senior Engineer, Fast-paced Recruiter).
+- **Multimodal Candidate Monitoring:**
+  - **Computer Vision Pipeline:** Real-time OpenCV video stream with MediaPipe Face Mesh estimating eye contact stability, head orientation, and gaze engagement.
+  - **Audio & RMS Visualization:** Real-time microphone buffer polling using `sounddevice` with dynamic level visualizers and offline `pyttsx3` text-to-speech engine.
+- **Adaptive Questioning & Rubric Scoring:** Groq-accelerated LLaMA model evaluates technical accuracy, answer structure, STAR method adherence, delivery pace, and generates relevant follow-up questions.
+- **Offline Fallback Architecture:** If remote API connectivity drops, the system falls back seamlessly to deterministic question sets and local metric calculations.
+- **Session Persistence & Export:** Automatically archives conversation transcripts, audio metrics, rubric evaluations, and recommendations to structured JSON files on local disk.
 
 ---
 
-### 👤 Interviewer Personas
+## Architecture
 
-Choose from different interviewer personalities including:
+```mermaid
+graph TD
+    User["Candidate (Webcam & Microphone)"] --> Desktop["CustomTkinter Desktop Application (main.py)"]
 
-* Friendly HR
-* Strict Technical Lead
-* Startup Founder
-* Calm Senior Engineer
-* Fast-paced Recruiter
+    subgraph Desktop Application
+        CVEngine["OpenCV + MediaPipe Face Mesh\n(Gaze Tracking & Attention Metrics)"]
+        AudioEngine["sounddevice Audio Stream\n(RMS Visualizer & WAV Export)"]
+        TTSEngine["pyttsx3 Text-to-Speech\n(Question Audio Playback)"]
+        UI["CustomTkinter Dark Theme Interface\n(Split Panels, Metric Cards, Timers)"]
+        
+        Desktop --> CVEngine
+        Desktop --> AudioEngine
+        TTSEngine --> Desktop
+        CVEngine --> UI
+        AudioEngine --> UI
+    end
 
-Each persona influences the tone and style of questioning.
+    Desktop -->|"HTTP POST (Audio WAV + Session Context)"| Backend["Backend Processing Pipeline"]
 
----
+    subgraph Backend Services
+        Whisper["OpenAI Whisper\n(Speech-to-Text Transcription)"]
+        GroqLLM["Groq LLaMA 3.1 8B Instant\n(Rubric Evaluation, STAR Analysis, Follow-ups)"]
+        
+        Backend --> Whisper
+        Whisper --> GroqLLM
+    end
 
-### 🎙 Speech Recognition
-
-The backend uses OpenAI Whisper to:
-
-* Transcribe spoken answers
-* Detect spoken content
-* Process microphone input
-* Support natural conversational interviews
-
----
-
-### 🤖 AI Evaluation
-
-Each response is evaluated using Groq's Llama model.
-
-The AI analyzes:
-
-* Relevance
-* Clarity
-* Structure
-* Technical depth
-* Specificity
-* Impact
-
-It also generates:
-
-* Numerical score
-* Strengths
-* Weaknesses
-* Suggestions
-* Improved sample answer
-* STAR analysis
-* Ideal answer hints
-* Adaptive next interview question
-
----
-
-### 📊 Delivery Analysis
-
-The system evaluates speaking performance by estimating:
-
-* Confidence
-* Words per minute
-* Filler words
-* Speaking pace
-
----
-
-### 📷 Camera Monitoring
-
-The frontend uses MediaPipe Face Mesh to monitor:
-
-* Eye contact
-* Attention level
-
-These metrics are displayed live during the interview.
-
----
-
-### 📈 Final Interview Report
-
-At the end of each interview, the application generates a comprehensive report containing:
-
-* Overall score
-* Hire readiness assessment
-* Communication feedback
-* Technical feedback
-* Strengths
-* Weaknesses
-* Recommended practice plan
-* 7-day improvement roadmap
-
-Interview sessions are automatically saved locally for future review.
-
----
-
-## 🖥 User Interface
-
-The desktop application is built using **CustomTkinter** and provides:
-
-* Modern dark-themed interface
-* Live webcam preview
-* Microphone activity visualization
-* Interview timer
-* Question display
-* Real-time feedback
-* Detailed report tab
-* AI voice support using Text-to-Speech
-
----
-
-## 🏗 Project Architecture
-
-```text
-Frontend (CustomTkinter Desktop App)
-        │
-        │ HTTP Requests
-        ▼
-Flask Backend
-        │
- ├── Whisper Speech-to-Text
- ├── Groq LLM Evaluation
- ├── Speech Analysis
- └── Report Generation
+    GroqLLM -->|"JSON Feedback & Next Question"| Desktop
 ```
 
 ---
 
-## 🛠 Technologies Used
+## Hardware Requirements
 
-### Frontend
-
-* Python
-* CustomTkinter
-* OpenCV
-* MediaPipe
-* NumPy
-* Pillow
-* SoundDevice
-* SciPy
-* Requests
-* pyttsx3
-
-### Backend
-
-* Flask
-* OpenAI Whisper
-* Groq API
-* Llama 3.1 8B Instant
-* pyngrok
-* JSON
+| Component | Minimum Specification | Recommended |
+|---|---|---|
+| **Webcam** | 720p USB Camera (30 FPS) | 1080p Integrated or USB Camera |
+| **Microphone** | Standard analog or USB mic | Noise-cancelling headset or USB condenser mic |
+| **Audio Output** | Standard speakers or headphones | Headphones (prevents TTS feedback loop) |
+| **Processor** | Dual-core x86_64 / Apple Silicon | Quad-core CPU with AVX support |
+| **Memory** | 4 GB RAM | 8 GB RAM |
 
 ---
 
-## 📂 Project Structure
+## Software & Dependencies
 
-```text
-AI_Interview_Assistant
-│
-├── main.py                 # Desktop frontend
-├── backend.py              # Flask backend
-├── backend.ipynb           # Google Colab backend notebook
-├── requirements.txt
-├── .gitignore
-└── README.md
+- **Programming Language:** Python 3.10+
+- **Primary Libraries:**
+  - `customtkinter` — Modern themed desktop widget toolkit
+  - `opencv-python` (`cv2`) & `mediapipe` — Video capture and face landmark tracking
+  - `sounddevice` & `scipy` — Audio recording and WAV file encoding
+  - `pyttsx3` — Multiplatform offline text-to-speech synthesis
+  - `requests` — HTTP communication with backend API
+  - `Pillow` — Image handling and canvas rendering
+
+---
+
+## Project Structure
+
+```
+AI_Interview_Assistant/
+├── main.py                 # Complete CustomTkinter desktop application
+├── backend.ipynb           # Colab backend notebook for Whisper & Groq API
+├── requirements.txt        # Python dependency manifest
+├── .gitignore              # Git ignore rules for cached models and sessions
+└── README.md               # Complete engineering documentation
 ```
 
 ---
 
-## 🚀 How It Works
+## Setup and Usage
 
-1. Launch the desktop application.
-2. Connect it to the Flask backend using the ngrok URL.
-3. Configure:
-
-   * Interview role
-   * Interviewer persona
-   * Interview mode
-   * Duration
-   * Question limit
-4. Start the interview.
-5. The AI asks the first question.
-6. Respond using your microphone.
-7. Whisper transcribes your response.
-8. Groq evaluates your answer.
-9. Feedback and scores are displayed instantly.
-10. The AI asks the next question.
-11. After the interview, a complete report is generated.
-
----
-
-## ⚙ Installation
-
-### Clone the repository
-
+### 1. Clone Repository & Install Dependencies
 ```bash
 git clone https://github.com/saptarshidas578/AI_Interview_Assistant.git
-```
-
-```bash
 cd AI_Interview_Assistant
-```
 
----
+# Create virtual environment (recommended)
+python -m venv venv
+# On Windows:
+venv\Scripts\activate
+# On Linux/macOS:
+source venv/bin/activate
 
-### Install dependencies
-
-```bash
+# Install dependencies
 pip install -r requirements.txt
 ```
 
----
+### 2. Configure Backend Server
+Open and execute `backend.ipynb` in Google Colab (or local Jupyter environment) with your Groq API key configured. Copy the generated public ngrok URL.
 
-### Backend Setup
-
-Run the backend in Google Colab.
-
-You will need:
-
-* Groq API Key
-* ngrok Authentication Token
-
-The backend automatically creates a public URL using ngrok.
-
-Copy this URL into the desktop application's **Backend URL** field.
-
----
-
-### Start the Frontend
-
-Run:
-
+### 3. Launch Desktop Application
 ```bash
 python main.py
 ```
-
-Connect to the backend and begin the interview.
-
----
-
-## 📊 Evaluation Metrics
-
-Each answer is evaluated across multiple dimensions:
-
-* Relevance
-* Clarity
-* Structure
-* Technical Depth
-* Specificity
-* Impact
-* Communication Quality
-* Speaking Confidence
-* STAR Method Coverage
+- Paste the backend server URL into the **Backend URL** field in the application sidebar.
+- Select your target **Role**, **Interviewer Persona**, and **Interview Mode**.
+- Click **Start Interview**, speak into your microphone when prompted, and click **Submit Answer** to receive real-time feedback.
 
 ---
 
-## 🎯 Future Improvements
+## Evaluation Rubric Dimensions
 
-Potential enhancements include:
-
-* Resume PDF parsing
-* OCR-based resume upload
-* Company-specific interview modes
-* Multi-language interview support
-* Video recording
-* Emotion detection
-* Voice emotion analysis
-* Cloud database for interview history
-* User authentication
-* Web deployment
-* Analytics dashboard
+Each candidate response is scored across 6 dimensions:
+1. **Relevance:** Direct addressing of the core interview prompt.
+2. **Clarity:** Coherent, articulate phrasing and sentence structure.
+3. **Structure & STAR Method:** Logical Situation, Task, Action, Result framework.
+4. **Technical Depth:** Accuracy and depth of underlying engineering concepts.
+5. **Delivery & Pacing:** Speaking speed (WPM) and reduction of filler pauses.
+6. **Engagement:** Gaze direction and camera attention maintained during turn.
 
 ---
 
-## 👨‍💻 Author
+## Future Work
 
-**Saptarshi Das**
-
-GitHub:
-https://github.com/saptarshidas578
-
----
-
-## 📄 License
-
-This project is intended for educational, learning, and portfolio purposes.
+- [ ] Support local Whisper inference via `whisper.cpp` or `faster-whisper` for full offline capability without cloud backend.
+- [ ] Resume PDF parsing to automatically generate personalized resume-based interrogation questions.
+- [ ] Voice stress and prosody analysis for enhanced delivery feedback.
 
 ---
 
-## ⭐ If you found this project useful
+## Author & Contact
 
-If you like this project, consider giving it a ⭐ on GitHub. It helps others discover the project and supports future improvements.
+- **Author:** [saptarshi2007 (saptarshidas578)](https://github.com/saptarshidas578)
+- **Institution:** B.Tech Electrical & Computer Science Engineering, VIT Vellore
+- **LinkedIn:** TODO(author): add link
+
+---
+
+## License
+
+Recommended: [MIT License](https://opensource.org/licenses/MIT).  
+*TODO(author): confirm license selection.*

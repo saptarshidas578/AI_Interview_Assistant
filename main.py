@@ -1,3 +1,19 @@
+"""
+====================================================================================================
+AI Interview Assistant - Multimodal Desktop Mock Interview Simulation Platform
+Author: saptarshi2007 (https://github.com/saptarshidas578)
+
+Details:
+A cross-platform desktop application that simulates technical and behavioral interviews:
+- Graphical User Interface: Built with CustomTkinter for dark/light theme responsive interaction.
+- Computer Vision (OpenCV + MediaPipe): Tracks user gaze, eye contact percentage, and face mesh in real time.
+- Speech Processing (sounddevice + SciPy + pyttsx3): High-fidelity microphone capture, RMS visualization,
+  and offline text-to-speech engine.
+- AI Evaluation Pipeline: Interfaces with Whisper STT and Groq LLaMA models for rubric-based scoring,
+  STAR method breakdown, instant feedback, and adaptive question generation.
+====================================================================================================
+"""
+
 import customtkinter as ctk
 import sounddevice as sd
 from scipy.io.wavfile import write
@@ -69,6 +85,7 @@ class InterviewState(Enum):
 
 class InterviewAssistant(ctk.CTk):
     def __init__(self):
+        """Initialize the interview assistant window, state variables, worker queues, and UI hierarchy."""
         super().__init__()
 
         self.title("AI Interview Assistant")
@@ -123,6 +140,7 @@ class InterviewAssistant(ctk.CTk):
     # =========================
 
     def _build_ui(self):
+        """Construct primary GUI layout containing sidebar, header, and split monitoring panels."""
         self.grid_columnconfigure(0, weight=0)
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure(0, weight=1)
@@ -140,6 +158,7 @@ class InterviewAssistant(ctk.CTk):
         self._build_main_area()
 
     def _build_sidebar(self):
+        """Assemble control sidebar for role, persona, interview mode, and timer configuration."""
         title = ctk.CTkLabel(self.sidebar, text="Interview Setup", font=("Arial", 24, "bold"))
         title.pack(anchor="w", padx=18, pady=(20, 8))
 
@@ -175,6 +194,7 @@ class InterviewAssistant(ctk.CTk):
         self.end_button.pack(fill="x", padx=18)
 
     def _labeled_menu(self, label, values, default):
+        """Helper to create a titled dropdown option menu."""
         ctk.CTkLabel(self.sidebar, text=label, anchor="w").pack(fill="x", padx=18, pady=(8, 4))
         menu = ctk.CTkComboBox(self.sidebar, values=values)
         menu.set(default)
@@ -182,12 +202,14 @@ class InterviewAssistant(ctk.CTk):
         return menu
 
     def _labeled_textbox(self, label, height):
+        """Helper to create a titled multiline text entry widget."""
         ctk.CTkLabel(self.sidebar, text=label, anchor="w").pack(fill="x", padx=18, pady=(8, 4))
         box = ctk.CTkTextbox(self.sidebar, height=height, wrap="word")
         box.pack(fill="x", padx=18)
         return box
 
     def _build_header(self):
+        """Assemble top application banner displaying interview title and live session timer."""
         self.header = ctk.CTkFrame(self.workspace, fg_color="#101418", corner_radius=0)
         self.header.grid(row=0, column=0, sticky="ew", padx=18, pady=(16, 8))
         self.header.grid_columnconfigure(0, weight=1)
@@ -202,6 +224,7 @@ class InterviewAssistant(ctk.CTk):
         self.status_label.grid(row=1, column=0, sticky="w", pady=(4, 0))
 
     def _build_main_area(self):
+        """Construct primary split-screen workspace for camera/audio and chat transcript."""
         self.main = ctk.CTkFrame(self.workspace, fg_color="#101418", corner_radius=0)
         self.main.grid(row=1, column=0, sticky="nsew", padx=18, pady=(0, 18))
         self.main.grid_columnconfigure(0, weight=0)
@@ -221,6 +244,7 @@ class InterviewAssistant(ctk.CTk):
         self._build_right_panel()
 
     def _build_left_panel(self):
+        """Construct telemetry dashboard with webcam feed, gaze metrics, and audio visualizer."""
         ctk.CTkLabel(self.left_panel, text="Camera & Delivery", font=("Arial", 18, "bold")).pack(anchor="w", padx=16, pady=(16, 8))
         self.video_label = ctk.CTkLabel(self.left_panel, text="Camera OFF", width=480, height=360, fg_color="#0B0F13", corner_radius=8)
         self.video_label.pack(padx=16, pady=(0, 12))
@@ -263,6 +287,7 @@ class InterviewAssistant(ctk.CTk):
         self.replay_button.pack(fill="x", padx=16, pady=(0, 12))
 
     def _metric_card(self, label, value, row, column):
+        """Create a compact card displaying numerical telemetry (e.g., eye contact, pacing)."""
         card = ctk.CTkFrame(self.metric_grid, fg_color="#202832", corner_radius=8)
         card.grid(row=row, column=column, sticky="ew", padx=5, pady=5)
         ctk.CTkLabel(card, text=label, font=("Arial", 12), text_color="#AAB7C4").pack(anchor="w", padx=12, pady=(10, 0))
@@ -271,6 +296,7 @@ class InterviewAssistant(ctk.CTk):
         return value_label
 
     def _build_right_panel(self):
+        """Construct chat, question transcript, and real-time rubric feedback display panel."""
         top = ctk.CTkFrame(self.right_panel, fg_color="transparent")
         top.grid(row=0, column=0, sticky="ew", padx=16, pady=(16, 8))
         top.grid_columnconfigure(0, weight=1)
@@ -305,9 +331,11 @@ class InterviewAssistant(ctk.CTk):
     # =========================
 
     def set_status(self, text, color="#D6DEE6"):
+        """Update application status banner with color-coded feedback."""
         self.status_label.configure(text=text, text_color=color)
 
     def set_question(self, text):
+        """Display current interviewer question and dispatch speech synthesis."""
         self.current_question = text
         self.question_box.configure(state="normal")
         self.question_box.delete("1.0", "end")
@@ -315,10 +343,12 @@ class InterviewAssistant(ctk.CTk):
         self.question_box.configure(state="disabled")
 
     def append_answer(self, text):
+        """Append user candidate response transcript to the conversation view."""
         self.answer_text.delete("1.0", "end")
         self.answer_text.insert("1.0", text)
 
     def append_feedback(self, data):
+        """Format and append structured rubric feedback, scores, and STAR suggestions."""
         breakdown = data.get("breakdown", {})
         speech = data.get("speech_metrics", {})
         star = data.get("star", {})
@@ -367,6 +397,7 @@ class InterviewAssistant(ctk.CTk):
         self.feedback_text.insert("1.0", "\n".join(lines))
 
     def _set_ready_state(self):
+        """Transition application controls into idle ready state for new session."""
         self.set_status("Ready. Check backend, then start interview.", "#2ECC71")
         self.timer_label.configure(text="00:00")
         if hasattr(self, "recording_hint"):
@@ -375,6 +406,7 @@ class InterviewAssistant(ctk.CTk):
             )
 
     def lock_setup(self, locked):
+        """Enable or disable configuration inputs during active interview sessions."""
         state = "disabled" if locked else "normal"
         for widget in [self.server_entry, self.role_menu, self.persona_menu, self.mode_menu, self.duration_menu, self.limit_menu]:
             widget.configure(state=state)
@@ -385,6 +417,7 @@ class InterviewAssistant(ctk.CTk):
     # =========================
 
     def check_backend(self):
+        """Query backend server health endpoint asynchronously to verify connectivity."""
         self.server_url = self.server_entry.get().strip().rstrip("/")
         if not self.server_url or "PASTE_YOUR_NGROK_URL_HERE" in self.server_url:
             self.set_status("Paste your ngrok backend URL first.", "#E74C3C")
@@ -403,6 +436,7 @@ class InterviewAssistant(ctk.CTk):
         threading.Thread(target=worker, daemon=True).start()
 
     def fetch_opening_question(self):
+        """Request initial role-specific interview prompt from the LLM backend."""
         payload = self.base_payload()
         try:
             response = requests.post(f"{self.server_url}/opening_question", json=payload, timeout=20)
@@ -413,6 +447,7 @@ class InterviewAssistant(ctk.CTk):
         return f"Tell me about yourself and why you are interested in the {self.role_menu.get()} role."
 
     def base_payload(self):
+        """Assemble base dictionary of interview metadata (role, persona, mode, context)."""
         return {
             "history": self.history[-8:],
             "persona": self.persona_menu.get(),
@@ -428,6 +463,7 @@ class InterviewAssistant(ctk.CTk):
     # =========================
 
     def start_interview(self):
+        """Validate setup, connect to backend, launch camera/audio streams, and begin session."""
         self.server_url = self.server_entry.get().strip().rstrip("/")
         if not self.server_url or "PASTE_YOUR_NGROK_URL_HERE" in self.server_url:
             self.set_status("Paste your ngrok backend URL first.", "#E74C3C")
@@ -460,6 +496,7 @@ class InterviewAssistant(ctk.CTk):
         threading.Thread(target=worker, daemon=True).start()
 
     def _show_ai_question(self, question):
+        """Display generated interview question and trigger text-to-speech playback."""
         if self.interview_state == InterviewState.COMPLETED:
             return
         self.interview_state = InterviewState.AI_SPEAKING
@@ -471,6 +508,7 @@ class InterviewAssistant(ctk.CTk):
         self.speak(question)
 
     def _on_tts_finished(self):
+        """Callback fired when speech synthesizer concludes reading question."""
         if self.interview_state == InterviewState.AI_SPEAKING:
             self.interview_state = InterviewState.READY_TO_RECORD
             self.record_button.configure(state="normal")
@@ -480,6 +518,7 @@ class InterviewAssistant(ctk.CTk):
 
 
     def start_recording(self):
+        """Begin microphone audio acquisition using sounddevice input stream."""
         if self.interview_state != InterviewState.READY_TO_RECORD:
             return
 
@@ -506,6 +545,7 @@ class InterviewAssistant(ctk.CTk):
             self.set_status(f"Microphone error: {exc}", "#E74C3C")
 
     def stop_recording(self):
+        """Halt audio stream, export captured WAV buffer, and dispatch turn for LLM evaluation."""
         if not self.is_recording:
             return
 
@@ -524,6 +564,7 @@ class InterviewAssistant(ctk.CTk):
         threading.Thread(target=self._submit_turn, daemon=True).start()
 
     def _submit_turn(self):
+        """Asynchronously transmit recorded audio and conversation context to the backend."""
         if not self.audio_data:
             self.after(0, lambda: self.set_status("No audio detected. Try again.", "#E74C3C"))
             self.after(0, lambda: self.record_button.configure(state="normal"))
@@ -558,6 +599,7 @@ class InterviewAssistant(ctk.CTk):
         self.after(0, lambda d=data: self._handle_turn_response(d))
 
     def _handle_turn_response(self, data):
+        """Process STT transcription, rubric scores, and next question returned by backend."""
         transcript = data.get("transcript", "")
         self.append_answer(transcript)
         self.append_feedback(data)
@@ -588,6 +630,7 @@ class InterviewAssistant(ctk.CTk):
         self._show_ai_question(next_question)
 
     def local_fallback_turn(self, error):
+        """Provide deterministic offline questions and simulated feedback if backend is unavailable."""
         return {
             "transcript": "Could not process answer because the backend was unavailable.",
             "score": 5,
@@ -606,6 +649,7 @@ class InterviewAssistant(ctk.CTk):
         }
 
     def end_interview(self):
+        """Conclude active interview session and initiate comprehensive report generation."""
         if self.interview_state == InterviewState.COMPLETED:
             return
         self.interview_state = InterviewState.COMPLETED
@@ -618,6 +662,7 @@ class InterviewAssistant(ctk.CTk):
         threading.Thread(target=self._generate_report, daemon=True).start()
 
     def _generate_report(self):
+        """Request comprehensive summary assessment and 7-day development roadmap from LLM."""
         payload = self.base_payload()
         payload["history"] = self.history
         try:
@@ -628,6 +673,7 @@ class InterviewAssistant(ctk.CTk):
         self.after(0, lambda: self._show_report(report))
 
     def _show_report(self, report):
+        """Render final interview performance report and readiness score in dedicated view."""
         lines = [
             "FINAL INTERVIEW REPORT",
             "",
@@ -662,6 +708,7 @@ class InterviewAssistant(ctk.CTk):
         self.set_status("Interview complete. Session saved locally.", "#2ECC71")
 
     def local_report(self):
+        """Generate structured offline summary report using locally recorded session metrics."""
         scores = [x.get("score") for x in self.history if isinstance(x.get("score"), int)]
         avg = int(sum(scores) / len(scores)) if scores else 5
         return {
@@ -677,6 +724,7 @@ class InterviewAssistant(ctk.CTk):
         }
 
     def save_session(self, report):
+        """Persist interview transcript, scores, and feedback to a timestamped JSON file on disk."""
         os.makedirs("sessions", exist_ok=True)
         stamp = self.session_started_at.strftime("%Y%m%d_%H%M%S") if self.session_started_at else datetime.now().strftime("%Y%m%d_%H%M%S")
         path = os.path.join("sessions", f"interview_session_{stamp}.json")
@@ -696,11 +744,13 @@ class InterviewAssistant(ctk.CTk):
     # =========================
 
     def remaining_seconds(self):
+        """Calculate remaining session duration in seconds based on allocated timer."""
         if not self.interview_start_time:
             return self.max_duration_seconds
         return max(0, int(self.max_duration_seconds - (time.time() - self.interview_start_time)))
 
     def _update_timer(self):
+        """Recurring 1-second GUI loop decrementing session timer and enforcing timeouts."""
         if self.interview_state == InterviewState.COMPLETED:
             return
         remaining = self.remaining_seconds()
@@ -712,21 +762,25 @@ class InterviewAssistant(ctk.CTk):
             self.after(1000, self._update_timer)
 
     def _audio_callback(self, indata, frames, time_info, status):
+        """Real-time sounddevice audio buffer callback calculating input RMS amplitude."""
         if self.is_recording:
             self.audio_data.append(indata.copy())
             self.latest_mic_level = min(1.0, float(np.linalg.norm(indata) * 10) / 80.0)
 
     def _update_mic_visualizer(self):
+        """Refresh dynamic microphone level indicator based on measured audio amplitude."""
         self.mic_progress.set(self.latest_mic_level if self.is_recording else 0)
         self.after(100, self._update_mic_visualizer)
 
     def speak(self, text):
+        """Enqueue text for background speech synthesis using pyttsx3."""
         if text and self.tts_enabled.get():
             self.tts_queue.put(text)
         else:
             self.after(300, self._on_tts_finished)
 
     def _tts_worker(self):
+        """Worker thread consuming TTS queue to prevent audio playback from freezing GUI."""
         try:
             engine = pyttsx3.init()
             engine.setProperty("rate", 165)
@@ -750,12 +804,14 @@ class InterviewAssistant(ctk.CTk):
     # =========================
 
     def start_camera(self):
+        """Spawn dedicated background thread for high-framerate webcam frame acquisition."""
         if self.camera_running:
             return
         self.camera_running = True
         threading.Thread(target=self.camera_thread, daemon=True).start()
 
     def camera_thread(self):
+        """Background video capture loop fetching frames and computing MediaPipe face landmarks."""
         cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
         cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
         cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
@@ -781,6 +837,7 @@ class InterviewAssistant(ctk.CTk):
         self.after(0, lambda: self.video_label.configure(image=None, text="Camera Stopped"))
 
     def _process_face_metrics(self, rgb):
+        """Analyze face mesh landmarks to compute gaze direction, attention score, and eye contact."""
         results = self.face_mesh.process(rgb)
         target_attention = 0.0
         target_eye_contact = 0.0
@@ -797,6 +854,7 @@ class InterviewAssistant(ctk.CTk):
         self.smooth_eye_contact = target_eye_contact * self.ema_alpha + self.smooth_eye_contact * (1 - self.ema_alpha)
 
     def _update_camera_ui(self, rgb):
+        """Render processed OpenCV frame to CustomTkinter image canvas."""
         pil_image = Image.fromarray(rgb)
         ctk_image = ctk.CTkImage(light_image=pil_image, dark_image=pil_image, size=(480, 360))
         self.video_label.configure(image=ctk_image, text="")
@@ -809,6 +867,7 @@ class InterviewAssistant(ctk.CTk):
     # =========================
 
     def on_closing(self):
+        """Gracefully release camera, audio streams, and terminate application process."""
         self.camera_running = False
         self.tts_stop_event.set()
         if self.is_recording and self.audio_stream:
